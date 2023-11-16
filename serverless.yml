@@ -1,0 +1,64 @@
+service: serverless-aws-shortlinker-test
+
+useDotenv: true
+
+custom:
+  globalTablesV2:
+    primaryRegion: eu-central-1
+    tables:
+      - table: UsersDynamoDBTable
+        addRegions:
+          - us-west-1
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: eu-central-1
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource:
+        - { "Fn::GetAtt": ["UsersDynamoDBTable", "Arn"] }
+
+functions:
+  app:
+    handler: build/index.app
+    events:
+      - http: ANY /
+      - http: ANY /{proxy+}
+
+package:
+  individually: true
+  exclude:
+    - node_modules/**
+    - .gitignore
+    - .git/**
+    - config/**
+    - src/**
+  include:
+    - build/**
+    - .env
+
+resources:
+  Resources:
+    UsersDynamoDBTable:
+      Type: "AWS::DynamoDB::Table"
+      Properties:
+        AttributeDefinitions:
+          - AttributeName: email
+            AttributeType: S
+        KeySchema:
+          - AttributeName: email
+            KeyType: HASH
+        TableName: users
+        BillingMode: PAY_PER_REQUEST
+
+plugins:
+  - serverless-dotenv-plugin
+  - serverless-dynamodb-global-table-v2-plugin

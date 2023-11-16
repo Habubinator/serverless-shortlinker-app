@@ -4,9 +4,9 @@
   "description": "",
   "main": "./dist/index.js",
   "scripts": {
-    "build": "ts-node config/build/esbuild-production.ts",
+    "build": "ts-node config/esbuild/esbuild-production.ts",
     "deploy": "sls deploy",
-    "push": "ts-node config/build/esbuild-production.ts && sls deploy",
+    "push": "ts-node config/esbuild/esbuild-production.ts && sls deploy",
     "clean": "node config/cleanup.js"
   },
   "author": "Hudymenko Yevhenii",
